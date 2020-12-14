@@ -27,9 +27,9 @@ const OrderList = () => {
         <Box>
           <Results />
         </Box>
-        <Box mt={3} display="flex" justifyContent="center">
+        {/* <Box mt={3} display="flex" justifyContent="center">
           <Pagination color="primary" count={3} size="small" />
-        </Box>
+        </Box> */}
       </Container>
     </Page>
   );

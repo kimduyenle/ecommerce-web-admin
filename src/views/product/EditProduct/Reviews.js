@@ -61,7 +61,7 @@ const Reviews = ({ productId }) => {
   return (
     <>
       <Typography variant="h5" component="h1" className={classes.title}>
-        Reviews
+        Đánh giá sản phẩm
       </Typography>
       <Grid container spacing={3}>
         {reviews.map((review, index) => (

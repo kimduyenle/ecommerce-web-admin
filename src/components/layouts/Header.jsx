@@ -28,17 +28,17 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "1rem",
     height: 70,
     justifyContent: "center",
-    backgroundColor: '#122230',
+    backgroundColor: "#122230",
   },
   avatar: {
     width: 60,
-    height: 60
+    height: 60,
   },
   nav: {
     "& *": {
-      color: theme.palette.common.white
-    }
-  }
+      color: theme.palette.common.white,
+    },
+  },
 }));
 
 const useMenuLinkStyles = makeStyles((theme) => {
@@ -47,12 +47,12 @@ const useMenuLinkStyles = makeStyles((theme) => {
     anchor: {
       display: "flex",
       justifyContent: "center",
-      cursor: "pointer"
+      cursor: "pointer",
     },
     dropdown: {
-      backgroundColor: theme.palette.background.default
+      backgroundColor: theme.palette.background.default,
     },
-    menuItem: {}
+    menuItem: {},
   };
 });
 
@@ -152,7 +152,7 @@ const Header = ({ className, onMobileNavOpen, ...rest }) => {
 
 Header.propTypes = {
   className: PropTypes.string,
-  onMobileNavOpen: PropTypes.func
+  onMobileNavOpen: PropTypes.func,
 };
 
 export default Header;

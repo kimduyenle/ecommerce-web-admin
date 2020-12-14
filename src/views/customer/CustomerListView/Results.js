@@ -73,14 +73,19 @@ const headCells = [
     disablePadding: true,
     label: "ID",
   },
-  { id: "username", numeric: true, disablePadding: false, label: "Username" },
+  {
+    id: "username",
+    numeric: true,
+    disablePadding: false,
+    label: "Tên tài khoản",
+  },
   { id: "email", numeric: true, disablePadding: false, label: "Email" },
-  { id: "role", numeric: true, disablePadding: false, label: "Role" },
+  { id: "role", numeric: true, disablePadding: false, label: "Vai trò" },
   {
     id: "date",
     numeric: true,
     disablePadding: false,
-    label: "Registration date",
+    label: "Ngày đăng ký",
   },
 ];
 
@@ -191,7 +196,7 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Users
+          Người dùng
         </Typography>
       )}
 
@@ -282,7 +287,7 @@ export default function Results() {
   const deleteUser = async (id) => {
     try {
       const response = await userAPI.delete(id);
-      showSuccess("Deleted successfully.");
+      showSuccess("Đã xóa người dùng");
       fetchUsers();
     } catch (error) {
       console.log("Failed to delete user: ", error);
@@ -370,11 +375,12 @@ export default function Results() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Search input"
+                    label="Tìm kiếm"
                     margin="normal"
                     variant="outlined"
                     InputProps={{ ...params.InputProps, type: "search" }}
                     value={search}
+                    size="small"
                     onChange={(event) => setSearch(event.target.value)}
                     // onClick={(event) => setSearch(event.target.value)}
                   />

@@ -16,12 +16,15 @@ import {
   Typography,
   makeStyles,
 } from "@material-ui/core";
+import { Upload as UploadIcon, Image as ImageIcon } from "react-feather";
 import routes from "app/app.routes";
 import userAPI from "api/user";
 
 const useStyles = makeStyles(() => ({
   root: {},
   button: {
+    minWidth: 30,
+    padding: "3px",
     backgroundColor: "#122230",
     "&:hover": {
       backgroundColor: "#122230ed",
@@ -37,6 +40,13 @@ const useStyles = makeStyles(() => ({
     height: 200,
     width: 200,
     marginBottom: 8,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  group: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    width: "fit-content",
   },
 }));
 
@@ -87,61 +97,50 @@ const UserAvatar = ({ className, user, id, ...rest }) => {
     >
       {({ isSubmitting }) => (
         <Form>
-          <Card className={clsx(classes.root, className)} {...rest}>
-            <CardContent>
-              <Box alignItems="center" display="flex" flexDirection="column">
-                <Avatar className={classes.avatar} src={user.avatar} />
-                <Typography color="textPrimary" gutterBottom variant="h3">
+          <Avatar className={classes.avatar} src={user.avatar} />
+          {/* <Typography color="textPrimary" gutterBottom variant="h3">
                   {user.username}
                 </Typography>
               </Box>
             </CardContent>
             <Divider />
-            <CardActions className={classes.cardActions}>
-              <input
-                name="image"
-                className={classes.input}
-                id="contained-button-file"
-                type="file"
-                onChange={(e) => {
-                  setImage(e.target.files[0]);
-                }}
-              />
-              <label
-                htmlFor="contained-button-file"
-                style={{ marginLeft: 0, flexBasis: "45%" }}
-              >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  component="span"
-                  size="large"
-                  className={classes.button}
-                >
-                  Choose file
-                </Button>
-              </label>
-
-              {/* <input name="image" type="file"
-					onChange={(e) => {
-						setImage(e.target.files[0]);
-					}}
-					style={{width: 200}}
-				/> */}
-
+            <CardActions className={classes.cardActions}> */}
+          <input
+            name="image"
+            className={classes.input}
+            id="contained-button-file"
+            type="file"
+            onChange={(e) => {
+              setImage(e.target.files[0]);
+            }}
+          />
+          <div className={classes.group}>
+            <label htmlFor="contained-button-file">
               <Button
-                color="primary"
-                disabled={isSubmitting}
-                size="large"
-                type="submit"
                 variant="contained"
-                style={{ marginLeft: 0, flexBasis: "45%" }}
+                color="primary"
+                component="span"
+                size="large"
                 className={classes.button}
               >
-                Upload
+                <ImageIcon />
               </Button>
-            </CardActions>
-          </Card>
+            </label>
+
+            <Button
+              color="primary"
+              disabled={isSubmitting}
+              size="large"
+              type="submit"
+              variant="contained"
+              style={{ marginLeft: 10 }}
+              className={classes.button}
+            >
+              <UploadIcon />
+            </Button>
+          </div>
+          {/* </CardActions>
+          </Card> */}
         </Form>
       )}
     </Formik>

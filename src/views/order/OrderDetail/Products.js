@@ -33,10 +33,10 @@ const Products = ({ className, orderDetails, ...rest }) => {
           <TableHead>
             <TableRow>
               <TableCell>ID</TableCell>
-              <TableCell>Image</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Quantity</TableCell>
+              <TableCell>Hình ảnh</TableCell>
+              <TableCell>Tên sản phẩm</TableCell>
+              <TableCell>Giá</TableCell>
+              <TableCell>Số lượng</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

@@ -73,14 +73,14 @@ const headCells = [
     disablePadding: true,
     label: "ID",
   },
-  { id: "name", numeric: true, disablePadding: false, label: "Name" },
+  { id: "name", numeric: true, disablePadding: false, label: "Tên sản phẩm" },
   // { id: "description", numeric: true, disablePadding: false, label: "Description" },
-  { id: "quantity", numeric: true, disablePadding: false, label: "Quantity" },
-  { id: "price", numeric: true, disablePadding: false, label: "Price" },
-  { id: "status", numeric: true, disablePadding: false, label: "Status" },
-  { id: "owner", numeric: true, disablePadding: false, label: "Onwer" },
-  { id: "category", numeric: true, disablePadding: false, label: "Category" },
-  { id: "image", numeric: true, disablePadding: false, label: "Image" },
+  { id: "quantity", numeric: true, disablePadding: false, label: "Số lượng" },
+  { id: "price", numeric: true, disablePadding: false, label: "Giá" },
+  { id: "status", numeric: true, disablePadding: false, label: "Trạng thái" },
+  { id: "owner", numeric: true, disablePadding: false, label: "Chủ sản phẩm" },
+  { id: "category", numeric: true, disablePadding: false, label: "Danh mục" },
+  { id: "image", numeric: true, disablePadding: false, label: "Hình ảnh" },
 ];
 
 function EnhancedTableHead(props) {
@@ -190,7 +190,7 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Products
+          Sản phẩm
         </Typography>
       )}
 
@@ -241,6 +241,18 @@ const useStyles = makeStyles((theme) => ({
     width: 48,
     height: 48,
     marginLeft: 8,
+  },
+  no: {
+    padding: "4px 8px",
+    backgroundColor: "#c1325a",
+    color: "white",
+    borderRadius: 4,
+  },
+  yes: {
+    padding: "4px 8px",
+    backgroundColor: "#0d775a",
+    color: "white",
+    borderRadius: 4,
   },
 }));
 
@@ -365,12 +377,13 @@ export default function Results() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Search input"
+                    label="Tìm kiếm"
                     margin="normal"
                     variant="outlined"
                     InputProps={{ ...params.InputProps, type: "search" }}
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
+                    size="small"
                     // onClick={(event) => setSearch(event.target.value)}
                   />
                 )}
@@ -453,7 +466,11 @@ export default function Results() {
                       <TableCell align="right">{row.quantity}</TableCell>
                       <TableCell align="right">{row.price}</TableCell>
                       <TableCell align="right">
-                        {row.status === 0 ? "No" : "Yes"}
+                        {!row.status ? (
+                          <span className={classes.no}>Chưa duyệt</span>
+                        ) : (
+                          <span className={classes.yes}>Đã duyệt</span>
+                        )}
                       </TableCell>
                       <TableCell align="right">{row.user.username}</TableCell>
                       <TableCell align="right">{row.category.name}</TableCell>

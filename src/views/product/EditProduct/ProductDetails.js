@@ -81,18 +81,20 @@ const ProductDetails = ({ className, product, id, ...rest }) => {
       {({ isSubmitting }) => (
         <Form>
           <Card>
-            <CardHeader title="Product" />
+            <CardHeader title="Thông tin sản phẩm" />
             <Divider />
             <CardContent>
               <Grid container spacing={3}>
                 <Grid item md={6} xs={12}>
                   <Field
-                    label="Name"
+                    label="Tên sản phẩm"
                     margin="normal"
                     name="name"
                     component={TextInput}
                     fullWidth
                     variant="outlined"
+                    size="small"
+                    disabled
                   />
                 </Grid>
                 <Grid item md={6} xs={12}>
@@ -106,34 +108,39 @@ const ProductDetails = ({ className, product, id, ...rest }) => {
                     })}
                     component={SelectInput}
                     fullWidth
-                    label="Category"
+                    label="Danh mục"
+                    disabled
                   />
                 </Grid>
                 <Grid item md={6} xs={12}>
                   <Field
-                    label="Quantity"
+                    label="Số lượng"
                     margin="normal"
                     name="quantity"
                     component={TextInput}
                     fullWidth
                     type="number"
                     variant="outlined"
+                    size="small"
+                    disabled
                   />
                 </Grid>
                 <Grid item md={6} xs={12}>
                   <Field
-                    label="Price"
+                    label="Giá"
                     margin="normal"
                     name="price"
                     component={TextInput}
                     fullWidth
                     type="number"
                     variant="outlined"
+                    size="small"
+                    disabled
                   />
                 </Grid>
                 <Grid item md={6} xs={12}>
                   <Field
-                    label="Description"
+                    label="Mô tả"
                     margin="normal"
                     name="description"
                     component={TextInput}
@@ -141,22 +148,25 @@ const ProductDetails = ({ className, product, id, ...rest }) => {
                     multiline
                     rows={5}
                     variant="outlined"
+                    disabled
                   />
                 </Grid>
                 <Grid item md={6} xs={12}>
                   <Field
-                    label="Owner"
+                    label="Chủ sản phẩm"
                     margin="normal"
                     name="owner"
                     component={TextInput}
                     fullWidth
                     variant="outlined"
+                    size="small"
+                    disabled
                   />
                 </Grid>
               </Grid>
             </CardContent>
             <Divider />
-            <Box display="flex" justifyContent="flex-end" p={2}>
+            {/* <Box display="flex" justifyContent="flex-end" p={2}>
               <Button
                 color="primary"
                 variant="contained"
@@ -165,7 +175,7 @@ const ProductDetails = ({ className, product, id, ...rest }) => {
               >
                 Save details
               </Button>
-            </Box>
+            </Box> */}
           </Card>
         </Form>
       )}

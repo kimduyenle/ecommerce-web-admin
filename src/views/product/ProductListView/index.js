@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#fff",
     minHeight: "100%",
     paddingBottom: theme.spacing(3),
-    paddingTop: theme.spacing(3),
+    // paddingTop: theme.spacing(3),
   },
   productCard: {
     height: "100%",
@@ -25,13 +25,13 @@ const ProductList = () => {
   return (
     <Page className={classes.root} title="Products">
       <Container maxWidth={false}>
-        <Toolbar />
-        <Box mt={3}>
+        {/* <Toolbar /> */}
+        <Box>
           <Results />
         </Box>
-        <Box mt={3} display="flex" justifyContent="center">
+        {/* <Box mt={3} display="flex" justifyContent="center">
           <Pagination color="primary" count={3} size="small" />
-        </Box>
+        </Box> */}
       </Container>
     </Page>
   );

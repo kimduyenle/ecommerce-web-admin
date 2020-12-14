@@ -71,7 +71,7 @@ const AddUser = () => {
               username: "",
               email: "",
               password: "",
-              roleId: roles.length !== 0 ? roles[0].id : 0,
+              roleId: "",
               phoneNumber: "",
               address: "",
               // avatar: "",
@@ -94,7 +94,7 @@ const AddUser = () => {
                   phoneNumber,
                   address,
                 });
-                showSuccess("Added successfully.");
+                showSuccess("Thêm người dùng thành công");
                 history.push(routes.users.path);
               } catch (error) {
                 console.log("Failed to add user: ", error);
@@ -105,16 +105,17 @@ const AddUser = () => {
               <Form>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
-                    Add user
+                    Thêm người dùng
                   </Typography>
                 </Box>
                 <Field
-                  label="Username"
+                  label="Tên tài khoản"
                   margin="normal"
                   name="username"
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 <Field
                   label="Email"
@@ -123,15 +124,17 @@ const AddUser = () => {
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 <Field
-                  label="Password"
+                  label="Mật khẩu"
                   margin="normal"
                   name="password"
                   type="password"
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 <Field
                   name="roleId"
@@ -143,23 +146,25 @@ const AddUser = () => {
                   })}
                   component={SelectInput}
                   fullWidth
-                  label="Role"
+                  label="Vai trò"
                 />
                 <Field
-                  label="Phone number"
+                  label="Số điện thoại"
                   margin="normal"
                   name="phoneNumber"
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 <Field
-                  label="Address"
+                  label="Địa chỉ"
                   margin="normal"
                   name="address"
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 {/* <Field
                   label="Avatar"
@@ -179,7 +184,7 @@ const AddUser = () => {
                     variant="contained"
                     className={classes.button}
                   >
-                    Add
+                    Thêm
                   </Button>
                 </Box>
               </Form>

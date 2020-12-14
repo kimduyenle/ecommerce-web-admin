@@ -21,6 +21,7 @@ import useNotification from "utils/hooks/notification";
 import routes from "app/app.routes";
 import productAPI from "api/product";
 import categoryAPI from "api/category";
+import imageAPI from "api/image";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,6 +44,28 @@ const AddProduct = () => {
   const { showError, showSuccess } = useNotification();
   const history = useHistory();
   const [categories, setCategories] = useState([]);
+  const [images, setImages] = useState(null);
+
+  const onFileUpload = async (id) => {
+    try {
+      for (let i = 0; i < images.length; i++) {
+        if (images[i] !== "") {
+          let fileData = new FormData();
+          fileData.set(
+            "image",
+            images[i],
+            `${images[i].lastModified}-${images[i].name}`
+          );
+          await imageAPI.uploadProductImage(fileData, id);
+          // showSuccess("Editted successfully.");
+        }
+      }
+    } catch (error) {
+      console.log("Failed to edit user: ", error);
+    }
+
+    console.log(images);
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -55,6 +78,8 @@ const AddProduct = () => {
     };
     fetchCategories();
   }, []);
+
+  console.log("images", images);
 
   return (
     <Page className={classes.root} title="Add product">
@@ -92,6 +117,7 @@ const AddProduct = () => {
                   quantity,
                   price,
                 });
+                await onFileUpload(response.data.id);
                 showSuccess("Added successfully.");
                 history.push(routes.products.path);
               } catch (error) {
@@ -103,7 +129,7 @@ const AddProduct = () => {
               <Form>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
-                    Add product
+                    Thêm sản phẩm
                   </Typography>
                 </Box>
                 <Field
@@ -154,6 +180,14 @@ const AddProduct = () => {
                   multiline
                   rows={5}
                   variant="outlined"
+                />
+                <input
+                  name="images"
+                  type="file"
+                  multiple
+                  onChange={(e) => {
+                    setImages(e.target.files);
+                  }}
                 />
 
                 <Box my={2}>

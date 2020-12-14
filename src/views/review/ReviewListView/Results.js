@@ -73,11 +73,16 @@ const headCells = [
     disablePadding: true,
     label: "ID",
   },
-  { id: "product", numeric: true, disablePadding: false, label: "Product" },
-  { id: "user", numeric: true, disablePadding: false, label: "User" },
-  { id: "content", numeric: true, disablePadding: false, label: "Content" },
-  { id: "star", numeric: true, disablePadding: false, label: "Star" },
-  { id: "date", numeric: true, disablePadding: false, label: "Creation date" },
+  { id: "product", numeric: true, disablePadding: false, label: "Sản phẩm" },
+  {
+    id: "user",
+    numeric: true,
+    disablePadding: false,
+    label: "Người dùng đánh giá",
+  },
+  { id: "content", numeric: true, disablePadding: false, label: "Nội dung" },
+  { id: "star", numeric: true, disablePadding: false, label: "Điểm đánh giá" },
+  { id: "date", numeric: true, disablePadding: false, label: "Ngày đánh giá" },
 ];
 
 function EnhancedTableHead(props) {
@@ -187,7 +192,7 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Reviews
+          Đánh giá
         </Typography>
       )}
 
@@ -366,11 +371,12 @@ export default function Results() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Search input"
+                    label="Tìm kiếm"
                     margin="normal"
                     variant="outlined"
                     InputProps={{ ...params.InputProps, type: "search" }}
                     value={search}
+                    size="small"
                     onChange={(event) => setSearch(event.target.value)}
                     // onClick={(event) => setSearch(event.target.value)}
                   />

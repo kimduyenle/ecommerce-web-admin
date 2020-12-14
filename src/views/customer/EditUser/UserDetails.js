@@ -84,16 +84,17 @@ const UserDetails = ({ user, id }) => {
       {({ isSubmitting, values }) => (
         <Form>
           <Card>
-            <CardHeader title="User" />
+            <CardHeader title="Thông tin cá nhân" />
             <Divider />
             <CardContent>
               <Field
-                label="Username"
+                label="Tên tài khoản"
                 margin="normal"
                 name="username"
                 component={TextInput}
                 fullWidth
                 variant="outlined"
+                size="small"
               />
               <Field
                 label="Email"
@@ -102,22 +103,25 @@ const UserDetails = ({ user, id }) => {
                 component={TextInput}
                 fullWidth
                 variant="outlined"
+                size="small"
               />
               <Field
-                label="Phone number"
+                label="Số điện thoại"
                 margin="normal"
                 name="phoneNumber"
                 component={TextInput}
                 fullWidth
                 variant="outlined"
+                size="small"
               />
               <Field
-                label="Address"
+                label="Địa chỉ"
                 margin="normal"
                 name="address"
                 component={TextInput}
                 fullWidth
                 variant="outlined"
+                size="small"
               />
               {/* <Field
                   label="Avatar"
@@ -154,7 +158,7 @@ const UserDetails = ({ user, id }) => {
                 variant="contained"
                 className={classes.button}
               >
-                Edit
+                Lưu thông tin
               </Button>
             </Box>
           </Card>

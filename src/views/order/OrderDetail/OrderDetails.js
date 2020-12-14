@@ -42,16 +42,16 @@ const OrderDetails = ({ className, order, ...rest }) => {
     <Box>
       <Box>
         <Typography variant="h3" className={classes.title}>
-          Customer
+          Khách hàng
         </Typography>
         <TableContainer component={Paper}>
           <Table className={classes.table} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Username</TableCell>
+                <TableCell>Tên tài khoản</TableCell>
                 <TableCell>Email</TableCell>
-                <TableCell>Phone Number</TableCell>
-                <TableCell>Address</TableCell>
+                <TableCell>Số điện thoại</TableCell>
+                <TableCell>Địa chỉ</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -71,17 +71,17 @@ const OrderDetails = ({ className, order, ...rest }) => {
 
       <Box mt={3}>
         <Typography variant="h3" className={classes.title}>
-          Payment
+          Thanh toán
         </Typography>
         <TableContainer component={Paper}>
           <Table className={classes.table} aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Payment Method</TableCell>
-                <TableCell>Amount</TableCell>
-                <TableCell>Delivery Phone Number</TableCell>
-                <TableCell>Delivery Address</TableCell>
-                <TableCell>Date</TableCell>
+                <TableCell>Phương thức thanh toán</TableCell>
+                <TableCell>Tổng tiền hàng</TableCell>
+                <TableCell>Số điện thoại giao hàng</TableCell>
+                <TableCell>Địa chỉ giao hàng</TableCell>
+                <TableCell>Ngày đặt hàng</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

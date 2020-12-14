@@ -21,20 +21,20 @@ import routes from "app/app.routes";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     height: "100%",
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3),
   },
   button: {
-    backgroundColor: '#122230',
+    backgroundColor: "#122230",
     "&:hover": {
-      backgroundColor: '#122230ed',
+      backgroundColor: "#122230ed",
     },
   },
   link: {
-    color: '#122230'
-  }
+    color: "#122230",
+  },
 }));
 
 const LoginPage = () => {
@@ -58,9 +58,7 @@ const LoginPage = () => {
               password: "",
             }}
             validationSchema={Yup.object().shape({
-              username: Yup.string()
-                .max(255)
-                .required("Username is required"),
+              username: Yup.string().max(255).required("Username is required"),
               password: Yup.string().max(255).required("Password is required"),
             })}
             onSubmit={({ username, password }, { setSubmitting }) => {
@@ -86,25 +84,27 @@ const LoginPage = () => {
               <Form>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
-                    Sign in
+                    Đăng nhập
                   </Typography>
                 </Box>
                 <Field
-                  label="Username"
+                  label="Tên đăng nhập"
                   margin="normal"
                   name="username"
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 <Field
-                  label="Password"
+                  label="Mật khẩu"
                   margin="normal"
                   name="password"
                   type="password"
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 <Box my={2}>
                   <Button
@@ -116,20 +116,30 @@ const LoginPage = () => {
                     variant="contained"
                     className={classes.button}
                   >
-                    Sign in now
+                    Đăng nhập
                   </Button>
                 </Box>
-                <Typography color="textSecondary" variant="body1">
+                {/* <Typography color="textSecondary" variant="body1">
                   Don&apos;t have an account?{" "}
-                  <Link component={RouterLink} to={routes["auth/register"].path} variant="h6" className={classes.link}>
+                  <Link
+                    component={RouterLink}
+                    to={routes["auth/register"].path}
+                    variant="h6"
+                    className={classes.link}
+                  >
                     Sign up
                   </Link>
                 </Typography>
                 <Typography color="textSecondary" variant="body1">
-                  <Link component={RouterLink} to={routes["auth/password-reset"].path} variant="h6" className={classes.link}>
+                  <Link
+                    component={RouterLink}
+                    to={routes["auth/password-reset"].path}
+                    variant="h6"
+                    className={classes.link}
+                  >
                     Forgotten password
                   </Link>
-                </Typography>
+                </Typography> */}
               </Form>
             )}
           </Formik>

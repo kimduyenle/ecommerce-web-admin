@@ -20,6 +20,8 @@ import {
   User as UserIcon,
   UserPlus as UserPlusIcon,
   Users as UsersIcon,
+  List as CategoriesIcon,
+  Star as ReviewsIcon,
 } from "react-feather";
 import NavItem from "./NavItem";
 import userAPI from "api/user";
@@ -39,58 +41,58 @@ const items = [
   {
     href: "/users",
     icon: UsersIcon,
-    title: "Users",
+    title: "Người dùng",
   },
   {
     href: "/categories",
-    icon: UsersIcon,
-    title: "Categories",
+    icon: CategoriesIcon,
+    title: "Danh mục sản phẩm",
   },
-  {
-    href: "/statuses",
-    icon: UsersIcon,
-    title: "Statuses",
-  },
+  // {
+  //   href: "/statuses",
+  //   icon: UsersIcon,
+  //   title: "Statuses",
+  // },
   {
     href: "/products",
     icon: ShoppingBagIcon,
-    title: "Products",
+    title: "Sản phẩm",
   },
   {
     href: "/orders",
     icon: ShoppingBagIcon,
-    title: "Orders",
+    title: "Đơn hàng",
   },
   {
     href: "/reviews",
-    icon: ShoppingBagIcon,
-    title: "Reviews",
+    icon: ReviewsIcon,
+    title: "Đánh giá sản phẩm",
   },
   // {
   //   href: "/account",
   //   icon: UserIcon,
   //   title: "Account",
   // },
-  {
-    href: "/settings",
-    icon: SettingsIcon,
-    title: "Settings",
-  },
-  {
-    href: "/login",
-    icon: LockIcon,
-    title: "Login",
-  },
-  {
-    href: "/register",
-    icon: UserPlusIcon,
-    title: "Register",
-  },
-  {
-    href: "/404",
-    icon: AlertCircleIcon,
-    title: "Error",
-  },
+  // {
+  //   href: "/settings",
+  //   icon: SettingsIcon,
+  //   title: "Settings",
+  // },
+  // {
+  //   href: "/login",
+  //   icon: LockIcon,
+  //   title: "Login",
+  // },
+  // {
+  //   href: "/register",
+  //   icon: UserPlusIcon,
+  //   title: "Register",
+  // },
+  // {
+  //   href: "/404",
+  //   icon: AlertCircleIcon,
+  //   title: "Error",
+  // },
 ];
 
 const useStyles = makeStyles(() => ({

@@ -16,12 +16,12 @@ const signup = ({ email, username, password1, password2 }) => {
 };
 
 const signin = ({ username, password }) => {
-  return apiClient.post(`/auth/login/`, { username, password });
+  return apiClient.post(`/auth/admin/login/`, { username, password });
 };
 
 const getAllUsers = () => {
   return apiClient.get(`/users/`);
-}
+};
 
 // const activate = (key) => {
 //   return apiClient.get(`${url}/activation/`, { params: { key } });

@@ -61,7 +61,7 @@ const EditCategory = () => {
   }, []);
 
   return (
-    <Page className={classes.root} title="Add category">
+    <Page className={classes.root} title="Edit category">
       <Box
         display="flex"
         flexDirection="column"
@@ -91,17 +91,18 @@ const EditCategory = () => {
               <Form>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
-                    Edit category
+                    Chỉnh sửa danh mục
                   </Typography>
                 </Box>
                 <Field
-                  label="Name"
+                  label="Tên danh mục"
                   margin="normal"
                   name="name"
                   component={TextInput}
                   fullWidth
                   // value={user.username}
                   variant="outlined"
+                  size="small"
                 />
 
                 <Box my={2}>
@@ -114,7 +115,7 @@ const EditCategory = () => {
                     variant="contained"
                     className={classes.button}
                   >
-                    Edit
+                    Lưu
                   </Button>
                 </Box>
               </Form>

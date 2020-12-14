@@ -71,7 +71,7 @@ const Invoice = ({ className, order, ...rest }) => {
         <Box className={classes.info} mt={3}>
           <Box className={classes.customer}>
             <Typography className={classes.invoice}>
-              INVOICE: {order.id}
+              HÓA ĐƠN: {order.id}
             </Typography>
             <Box className={classes["text-gray"]}>
               <Typography>{order.user.username}</Typography>
@@ -106,20 +106,20 @@ const Invoice = ({ className, order, ...rest }) => {
         <Table className={classes.table} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Product</TableCell>
-              <TableCell>Price</TableCell>
-              <TableCell>Quantity</TableCell>
-              <TableCell align="right">Total</TableCell>
+              <TableCell>Sản phẩm</TableCell>
+              <TableCell>Giá</TableCell>
+              <TableCell>Số lượng</TableCell>
+              <TableCell align="right">Tổng</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {order.orderDetails.map((detail) => (
               <TableRow key={detail.id}>
                 <TableCell>{detail.product.name}</TableCell>
-                <TableCell>{detail.product.price}</TableCell>
-                <TableCell>{detail.product.quantity}</TableCell>
+                <TableCell>{detail.price}</TableCell>
+                <TableCell>{detail.quantity}</TableCell>
                 <TableCell align="right">
-                  {detail.product.price * detail.product.quantity}
+                  {detail.price * detail.quantity}
                 </TableCell>
               </TableRow>
             ))}
@@ -127,12 +127,12 @@ const Invoice = ({ className, order, ...rest }) => {
         </Table>
       </TableContainer>
       <Box className={classes.total} my={3} px={2}>
-        <Typography variant="h3">TOTAL</Typography>
+        <Typography variant="h3">TỔNG</Typography>
         <Typography variant="h3">{calTotal(order.orderDetails)}</Typography>
       </Box>
-      <Typography className={classes["text-gray"]}>
+      {/* <Typography className={classes["text-gray"]}>
         Please pay within 15 days. Thank you for your business.
-      </Typography>
+      </Typography> */}
     </Box>
   );
 };

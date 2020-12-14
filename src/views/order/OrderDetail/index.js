@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import qs from "qs";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
@@ -10,6 +10,7 @@ import {
   Typography,
   Box,
   Container,
+  Button,
 } from "@material-ui/core";
 import Page from "components/Page";
 import compose from "components/hocs/compose";
@@ -18,6 +19,7 @@ import OrderDetails from "./OrderDetails";
 import Products from "./Products";
 import Invoice from "./Invoice";
 import orderAPI from "api/order";
+import useNotification from "utils/hooks/notification";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -74,6 +76,8 @@ const useStyles = makeStyles((theme) => ({
 function OrderDetail() {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
+  const history = useHistory();
+  const { showSuccess } = useNotification();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -82,6 +86,7 @@ function OrderDetail() {
   const [order, setOrder] = useState({
     id: "",
     user: {},
+    statusId: "",
     paymentMethod: "",
     deliveryPhoneNumber: "",
     deliveryAddress: "",
@@ -100,6 +105,7 @@ function OrderDetail() {
         setOrder({
           id: fetchedOrder.id,
           user: fetchedOrder.user,
+          statusId: fetchedOrder.statusId,
           paymentMethod: fetchedOrder.paymentMethod,
           deliveryPhoneNumber: fetchedOrder.deliveryPhoneNumber,
           deliveryAddress: fetchedOrder.deliveryAddress,
@@ -112,6 +118,16 @@ function OrderDetail() {
     };
     fetchOrder(id);
   }, [id]);
+
+  const updateOrderStatus = async (statusId, orderId) => {
+    try {
+      await orderAPI.editStatus({ statusId: statusId + 1 }, orderId);
+      history.push("/orders");
+      showSuccess("Cập nhật đơn hàng thành công");
+    } catch (error) {
+      console.log("Failed to update status: ", error);
+    }
+  };
 
   return (
     <Page className={classes.root} title="Orders">
@@ -128,12 +144,12 @@ function OrderDetail() {
             className={classes.tabs}
           >
             <Tab
-              label="Order Details"
+              label="Thông tin đơn hàng"
               {...a11yProps(0)}
               className={classes.tab}
             />
-            <Tab label="Products" {...a11yProps(1)} className={classes.tab} />
-            <Tab label="Invoice" {...a11yProps(2)} className={classes.tab} />
+            <Tab label="Sản phẩm" {...a11yProps(1)} className={classes.tab} />
+            <Tab label="Hóa đơn" {...a11yProps(2)} className={classes.tab} />
           </Tabs>
         </AppBar>
         <TabPanel value={value} index={0} className={classes.tabPanel}>
@@ -145,6 +161,17 @@ function OrderDetail() {
         <TabPanel value={value} index={2} className={classes.tabPanel}>
           <Invoice order={{ ...order }} />
         </TabPanel>
+        <Box mt={2}>
+          {(order.statusId === 2 || order.statusId === 3) && (
+            <Button
+              variant="contained"
+              onClick={() => updateOrderStatus(order.statusId, order.id)}
+            >
+              {order.statusId === 2 && "Xác nhận đã lấy hàng"}
+              {order.statusId === 3 && "Xác nhận đã giao"}
+            </Button>
+          )}
+        </Box>
       </Container>
     </Page>
   );

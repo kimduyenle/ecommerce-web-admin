@@ -73,8 +73,8 @@ const headCells = [
     disablePadding: true,
     label: "ID",
   },
-  { id: "name", numeric: true, disablePadding: false, label: "Name" },
-  { id: "date", numeric: true, disablePadding: false, label: "Creation date" },
+  { id: "name", numeric: true, disablePadding: false, label: "Tên danh mục" },
+  { id: "date", numeric: true, disablePadding: false, label: "Ngày tạo" },
 ];
 
 function EnhancedTableHead(props) {
@@ -184,7 +184,7 @@ const EnhancedTableToolbar = (props) => {
           id="tableTitle"
           component="div"
         >
-          Categories
+          Danh mục sản phẩm
         </Typography>
       )}
 
@@ -353,11 +353,12 @@ export default function Results() {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="Search input"
+                    label="Tìm kiếm"
                     margin="normal"
                     variant="outlined"
                     InputProps={{ ...params.InputProps, type: "search" }}
                     value={search}
+                    size="small"
                     onChange={(event) => setSearch(event.target.value)}
                     // onClick={(event) => setSearch(event.target.value)}
                   />

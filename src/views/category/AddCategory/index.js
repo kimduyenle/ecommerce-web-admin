@@ -68,16 +68,17 @@ const AddCategory = () => {
               <Form>
                 <Box mb={3}>
                   <Typography color="textPrimary" variant="h2">
-                    Add category
+                    Thêm danh mục
                   </Typography>
                 </Box>
                 <Field
-                  label="Name"
+                  label="Tên danh mục"
                   margin="normal"
                   name="name"
                   component={TextInput}
                   fullWidth
                   variant="outlined"
+                  size="small"
                 />
                 <Box my={2}>
                   <Button
@@ -89,7 +90,7 @@ const AddCategory = () => {
                     variant="contained"
                     className={classes.button}
                   >
-                    Add
+                    Thêm
                   </Button>
                 </Box>
               </Form>

@@ -1,7 +1,13 @@
 import React, { Suspense, useEffect } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect,
+} from "react-router-dom";
 import routes from "./app.routes";
 import nProgress from "nprogress";
+import { localAuthenticate } from "utils/localAuth";
 
 const RouteFallback = () => {
   useEffect(() => {
@@ -15,6 +21,7 @@ const RouteFallback = () => {
 };
 
 const AppRouter = () => {
+  const { isAuthenticated } = localAuthenticate();
   return (
     <Router>
       <Switch>
@@ -22,6 +29,13 @@ const AppRouter = () => {
           {Object.entries(routes).map(([routeKey, routeConfig]) => {
             return <Route key={routeKey} {...routeConfig} />;
           })}
+          <Route exact path="/">
+            {isAuthenticated ? (
+              <Redirect to="/dashboard" />
+            ) : (
+              <Redirect to="/login" />
+            )}
+          </Route>
         </Suspense>
       </Switch>
     </Router>

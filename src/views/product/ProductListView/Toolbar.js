@@ -34,7 +34,7 @@ const Toolbar = ({ className, ...rest }) => {
           onClick={() => history.push(routes["products/add"].path)}
           className={classes.button}
         >
-          Add product
+          Thêm sản phẩm
         </Button>
       </Box>
     </div>

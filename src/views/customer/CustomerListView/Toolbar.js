@@ -34,7 +34,7 @@ const Toolbar = ({ className, ...rest }) => {
           onClick={() => history.push(routes["users/add"].path)}
           className={classes.button}
         >
-          Add user
+          Thêm người dùng
         </Button>
       </Box>
     </div>
