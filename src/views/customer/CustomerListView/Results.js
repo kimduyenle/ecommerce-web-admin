@@ -31,14 +31,7 @@ import { Autocomplete } from "@material-ui/lab";
 import useNotification from "utils/hooks/notification";
 import routes from "app/app.routes";
 import userAPI from "api/user";
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const dd = date.getDate();
-  const mm = date.getMonth() + 1;
-  const yyyy = date.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-}
+import formatDate from "utils/formatDate";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -172,7 +165,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected } = props;
+  const { numSelected, search, searchChange } = props;
 
   return (
     <Toolbar
@@ -198,6 +191,19 @@ const EnhancedTableToolbar = (props) => {
         >
           Người dùng
         </Typography>
+      )}
+
+      {numSelected > 0 ? null : (
+        <TextField
+          label="Tìm kiếm"
+          margin="normal"
+          variant="outlined"
+          value={search}
+          size="small"
+          onChange={(event) => searchChange(event)}
+          style={{ width: "100%" }}
+          // onClick={(event) => setSearch(event.target.value)}
+        />
       )}
 
       {numSelected > 0 ? (
@@ -263,32 +269,46 @@ export default function Results() {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [count, setCount] = useState(0);
   const [search, setSearch] = React.useState("");
   const { showError, showSuccess } = useNotification();
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const searchChange = (e) => {
+    setSearch(e.target.value);
+  };
 
   const fetchUsers = async () => {
     try {
-      // const params = {
-      //   _page: 1,
-      //   _limit: 10,
-      // };
-      const response = await userAPI.getAll();
-      setUsers(response.data.users);
+      const params = {
+        page: page + 1,
+        limit: rowsPerPage,
+        search: search,
+      };
+      const response = await userAPI.getPerPage({ params: params });
+      setUsers(response.data.dataInPage);
+      setRowsPerPage(params.limit);
+      setCount(response.data.total);
     } catch (error) {
       console.log("Failed to fetch users: ", error);
     }
   };
 
+  useEffect(() => {
+    console.log("render");
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    console.log("render");
+    fetchUsers();
+  }, [page, rowsPerPage, search, selected]);
+
   const deleteUser = async (id) => {
     try {
       const response = await userAPI.delete(id);
+      // fetchUsers();
       showSuccess("Đã xóa người dùng");
-      fetchUsers();
     } catch (error) {
       console.log("Failed to delete user: ", error);
     }
@@ -319,11 +339,18 @@ export default function Results() {
     // setUsers(newUsers);
     for (let user of users) {
       for (let i of selected) {
-        if (i === user.username) {
+        if (i === user.id) {
           deleteUser(user.id);
         }
       }
     }
+    const newUsers = users.filter((r) => {
+      for (let i of selected) {
+        if (i === r.id) return false;
+      }
+      return true;
+    });
+    setUsers(newUsers);
   };
 
   const handleClick = (event, name) => {
@@ -357,43 +384,14 @@ export default function Results() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, users.length - page * rowsPerPage);
-
   return (
     <div className={classes.root}>
-      <Box my={3}>
-        <Card>
-          <CardContent>
-            <Box maxWidth={500}>
-              <Autocomplete
-                freeSolo
-                id="free-solo-2-demo"
-                disableClearable
-                options={users.map((option) => option.username)}
-                autoSelect={true}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Tìm kiếm"
-                    margin="normal"
-                    variant="outlined"
-                    InputProps={{ ...params.InputProps, type: "search" }}
-                    value={search}
-                    size="small"
-                    onChange={(event) => setSearch(event.target.value)}
-                    // onClick={(event) => setSearch(event.target.value)}
-                  />
-                )}
-              />
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           handleClick={handleDeleteClick}
+          search={search}
+          searchChange={searchChange}
         />
         <TableContainer>
           <Table
@@ -412,77 +410,80 @@ export default function Results() {
               rowCount={users.length}
             />
             <TableBody>
-              {stableSort(
-                users.filter((r) => {
-                  console.log(r.username.indexOf(search));
-                  console.log(search);
-                  return r.username.indexOf(search) !== -1;
-                }),
-                getComparator(order, orderBy)
-              )
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.username);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.id}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isItemSelected}
-                          inputProps={{ "aria-labelledby": labelId }}
-                          onClick={(event) => handleClick(event, row.username)}
-                        />
-                      </TableCell>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
+              {
+                // stableSort(
+                //   users.filter((r) => {
+                //     console.log(r.username.indexOf(search));
+                //     console.log(search);
+                //     return r.username.indexOf(search) !== -1;
+                //   }),
+                //   getComparator(order, orderBy)
+                // )
+                stableSort(users, getComparator(order, orderBy))
+                  // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const isItemSelected = isSelected(row.id);
+                    const labelId = `enhanced-table-checkbox-${index}`;
+                    return (
+                      <TableRow
+                        hover
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.id}
+                        selected={isItemSelected}
                       >
-                        {row.id}
-                      </TableCell>
-                      <TableCell align="right" className={classes.username}>
-                        {row.username}
-                        <Avatar
-                          className={classes.avatar}
-                          // component={RouterLink}
-                          src={row.avatar}
-                          // to="/account"
-                          onClick={() =>
-                            history.push({
-                              pathname: routes["users/edit"].path,
-                              search: `?id=${row.id}`,
-                            })
-                          }
-                        />
-                      </TableCell>
-                      <TableCell align="right">{row.email}</TableCell>
-                      <TableCell align="right">{row.role.name}</TableCell>
-                      <TableCell align="right">
-                        {formatDate(row.createdAt)}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isItemSelected}
+                            inputProps={{ "aria-labelledby": labelId }}
+                            onClick={(event) => handleClick(event, row.id)}
+                          />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.id}
+                        </TableCell>
+                        <TableCell align="right" className={classes.username}>
+                          {row.username}
+                          <Avatar
+                            className={classes.avatar}
+                            // component={RouterLink}
+                            src={row.avatar}
+                            // to="/account"
+                            onClick={() =>
+                              history.push({
+                                pathname: routes["users/edit"].path,
+                                search: `?id=${row.id}`,
+                              })
+                            }
+                          />
+                        </TableCell>
+                        <TableCell align="right">{row.email}</TableCell>
+                        <TableCell align="right">{row.role.name}</TableCell>
+                        <TableCell align="right">
+                          {formatDate(row.createdAt)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+              }
+              {/* {emptyRows > 0 && (
                 <TableRow style={{ height: 53 * emptyRows }}>
                   <TableCell colSpan={6} />
                 </TableRow>
-              )}
+              )} */}
             </TableBody>
           </Table>
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={users.length}
+          count={count}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}

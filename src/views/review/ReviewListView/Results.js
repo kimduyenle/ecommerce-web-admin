@@ -31,14 +31,7 @@ import { Autocomplete, Rating } from "@material-ui/lab";
 import useNotification from "utils/hooks/notification";
 import routes from "app/app.routes";
 import reviewAPI from "api/review";
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const dd = date.getDate();
-  const mm = date.getMonth() + 1;
-  const yyyy = date.getFullYear();
-  return `${dd}/${mm}/${yyyy}`;
-}
+import formatDate from "utils/formatDate";
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -168,7 +161,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected } = props;
+  const { numSelected, search, searchChange } = props;
 
   return (
     <Toolbar
@@ -194,6 +187,18 @@ const EnhancedTableToolbar = (props) => {
         >
           Đánh giá
         </Typography>
+      )}
+
+      {numSelected > 0 ? null : (
+        <TextField
+          label="Tìm kiếm"
+          margin="normal"
+          variant="outlined"
+          value={search}
+          size="small"
+          onChange={(event) => searchChange(event)}
+          style={{ width: "100%" }}
+        />
       )}
 
       {numSelected > 0 ? (
@@ -258,23 +263,30 @@ export default function Results() {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
+  const [count, setCount] = useState(0);
   const [search, setSearch] = React.useState("");
   const { showError, showSuccess } = useNotification();
-
   const [reviews, setReviews] = useState([]);
+
+  const searchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
   useEffect(() => {
     fetchReviews();
-  }, []);
+  }, [page, rowsPerPage, search]);
 
   const fetchReviews = async () => {
     try {
-      // const params = {
-      //   _page: 1,
-      //   _limit: 10,
-      // };
-      const response = await reviewAPI.getAll();
-      setReviews(response.data.reviews);
+      const params = {
+        page: page + 1,
+        limit: rowsPerPage,
+        search: search,
+      };
+      const response = await reviewAPI.getPerPage({ params: params });
+      setReviews(response.data.dataInPage);
+      setRowsPerPage(params.limit);
+      setCount(response.data.total);
     } catch (error) {
       console.log("Failed to fetch reviews: ", error);
     }
@@ -283,8 +295,7 @@ export default function Results() {
   const deleteReview = async (id) => {
     try {
       const response = await reviewAPI.delete(id);
-      showSuccess("Deleted successfully.");
-      fetchReviews();
+      showSuccess("Đã xóa đánh giá");
     } catch (error) {
       console.log("Failed to delete review: ", error);
     }
@@ -315,11 +326,18 @@ export default function Results() {
     // setUsers(newUsers);
     for (let review of reviews) {
       for (let i of selected) {
-        if (i === review.product.name) {
+        if (i === review.id) {
           deleteReview(review.id);
         }
       }
     }
+    const newReviews = reviews.filter((r) => {
+      for (let i of selected) {
+        if (i === r.id) return false;
+      }
+      return true;
+    });
+    setReviews(newReviews);
   };
 
   const handleClick = (event, name) => {
@@ -353,43 +371,14 @@ export default function Results() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, reviews.length - page * rowsPerPage);
-
   return (
     <div className={classes.root}>
-      <Box mb={3}>
-        <Card>
-          <CardContent>
-            <Box maxWidth={500}>
-              <Autocomplete
-                freeSolo
-                id="free-solo-2-demo"
-                disableClearable
-                options={reviews.map((option) => option.product.name)}
-                autoSelect={true}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Tìm kiếm"
-                    margin="normal"
-                    variant="outlined"
-                    InputProps={{ ...params.InputProps, type: "search" }}
-                    value={search}
-                    size="small"
-                    onChange={(event) => setSearch(event.target.value)}
-                    // onClick={(event) => setSearch(event.target.value)}
-                  />
-                )}
-              />
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           handleClick={handleDeleteClick}
+          search={search}
+          searchChange={searchChange}
         />
         <TableContainer>
           <Table
@@ -408,17 +397,9 @@ export default function Results() {
               rowCount={reviews.length}
             />
             <TableBody>
-              {stableSort(
-                reviews.filter((r) => {
-                  console.log(r.product.name.indexOf(search));
-                  console.log(search);
-                  return r.product.name.indexOf(search) !== -1;
-                }),
-                getComparator(order, orderBy)
-              )
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.product.name);
+              {stableSort(reviews, getComparator(order, orderBy)).map(
+                (row, index) => {
+                  const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
@@ -434,9 +415,7 @@ export default function Results() {
                         <Checkbox
                           checked={isItemSelected}
                           inputProps={{ "aria-labelledby": labelId }}
-                          onClick={(event) =>
-                            handleClick(event, row.product.name)
-                          }
+                          onClick={(event) => handleClick(event, row.id)}
                         />
                       </TableCell>
                       <TableCell
@@ -462,11 +441,7 @@ export default function Results() {
                       <TableCell>{formatDate(row.createdAt)}</TableCell>
                     </TableRow>
                   );
-                })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
+                }
               )}
             </TableBody>
           </Table>
@@ -474,7 +449,7 @@ export default function Results() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={reviews.length}
+          count={count}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}

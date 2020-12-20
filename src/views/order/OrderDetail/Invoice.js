@@ -75,7 +75,9 @@ const Invoice = ({ className, order, ...rest }) => {
             </Typography>
             <Box className={classes["text-gray"]}>
               <Typography>{order.user.username}</Typography>
-              <Typography>{order.deliveryAddress}</Typography>
+              <Typography>
+                {order.deliveryAddress}, {order.district}, {order.province}
+              </Typography>
               <Typography>{order.deliveryPhoneNumber}</Typography>
               <Typography>{order.user.email}</Typography>
             </Box>
@@ -90,7 +92,9 @@ const Invoice = ({ className, order, ...rest }) => {
                 {order.orderDetails[0].product.user.username}
               </Typography>
               <Typography>
-                {order.orderDetails[0].product.user.address}
+                {order.orderDetails[0].product.user.address},{" "}
+                {order.orderDetails[0].product.user.district},{" "}
+                {order.orderDetails[0].product.user.province}
               </Typography>
               <Typography>
                 {order.orderDetails[0].product.user.phoneNumber}
@@ -116,10 +120,10 @@ const Invoice = ({ className, order, ...rest }) => {
             {order.orderDetails.map((detail) => (
               <TableRow key={detail.id}>
                 <TableCell>{detail.product.name}</TableCell>
-                <TableCell>{detail.price}</TableCell>
+                <TableCell>${detail.price}</TableCell>
                 <TableCell>{detail.quantity}</TableCell>
                 <TableCell align="right">
-                  {detail.price * detail.quantity}
+                  ${detail.price * detail.quantity}
                 </TableCell>
               </TableRow>
             ))}
@@ -127,8 +131,18 @@ const Invoice = ({ className, order, ...rest }) => {
         </Table>
       </TableContainer>
       <Box className={classes.total} my={3} px={2}>
+        <Typography variant="h5">Tổng tiền hàng</Typography>
+        <Typography variant="h5">${calTotal(order.orderDetails)}</Typography>
+      </Box>
+      <Box className={classes.total} my={3} px={2}>
+        <Typography variant="h5">Phí vận chuyển</Typography>
+        <Typography variant="h5">${order.transportation.cost}</Typography>
+      </Box>
+      <Box className={classes.total} my={3} px={2}>
         <Typography variant="h3">TỔNG</Typography>
-        <Typography variant="h3">{calTotal(order.orderDetails)}</Typography>
+        <Typography variant="h3">
+          ${calTotal(order.orderDetails) + order.transportation.cost}
+        </Typography>
       </Box>
       {/* <Typography className={classes["text-gray"]}>
         Please pay within 15 days. Thank you for your business.

@@ -15,6 +15,10 @@ import {
 } from "@material-ui/core";
 import formatDate from "utils/formatDate";
 import calTotal from "utils/calTotal";
+import "antd/dist/antd.css";
+import { Steps } from "antd";
+
+const { Step } = Steps;
 
 const useStyles = makeStyles(() => ({
   root: {},
@@ -62,7 +66,11 @@ const OrderDetails = ({ className, order, ...rest }) => {
                 </TableCell>
                 <TableCell>{order.user.email}</TableCell>
                 <TableCell>{order.user.phoneNumber}</TableCell>
-                <TableCell>{order.user.address}</TableCell>
+                <TableCell>
+                  {order.user.address}, {order.user.district}
+                  {", "}
+                  {order.user.province}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -79,6 +87,8 @@ const OrderDetails = ({ className, order, ...rest }) => {
               <TableRow>
                 <TableCell>Phương thức thanh toán</TableCell>
                 <TableCell>Tổng tiền hàng</TableCell>
+                <TableCell>Phí vận chuyển</TableCell>
+                <TableCell>Tổng cộng</TableCell>
                 <TableCell>Số điện thoại giao hàng</TableCell>
                 <TableCell>Địa chỉ giao hàng</TableCell>
                 <TableCell>Ngày đặt hàng</TableCell>
@@ -87,14 +97,41 @@ const OrderDetails = ({ className, order, ...rest }) => {
             <TableBody>
               <TableRow>
                 <TableCell>{order.paymentMethod}</TableCell>
-                <TableCell>{calTotal(order.orderDetails)}</TableCell>
+                <TableCell>${calTotal(order.orderDetails)}</TableCell>
+                <TableCell>${order.transportation.cost}</TableCell>
+                <TableCell>
+                  ${calTotal(order.orderDetails) + order.transportation.cost}
+                </TableCell>
                 <TableCell>{order.deliveryPhoneNumber}</TableCell>
-                <TableCell>{order.deliveryAddress}</TableCell>
+                <TableCell>
+                  {order.deliveryAddress}, {order.district}, {order.province}
+                </TableCell>
                 <TableCell>{formatDate(order.createdAt)}</TableCell>
               </TableRow>
             </TableBody>
           </Table>
         </TableContainer>
+      </Box>
+      <Box mt={3}>
+        <Typography variant="h3" className={classes.title}>
+          Lịch sử
+        </Typography>
+        <Steps progressDot current={0} direction="vertical">
+          {order.orderHistories
+            ?.sort((a, b) => {
+              return (
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+              );
+            })
+            .map((history, index) => (
+              <Step
+                key={index}
+                title={history.name}
+                description={formatDate(history.createdAt)}
+              />
+            ))}
+        </Steps>
       </Box>
     </Box>
 

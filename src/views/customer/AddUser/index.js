@@ -97,7 +97,8 @@ const AddUser = () => {
                 showSuccess("Thêm người dùng thành công");
                 history.push(routes.users.path);
               } catch (error) {
-                console.log("Failed to add user: ", error);
+                // console.log({ error });
+                showError(error.response.data);
               }
             }}
           >

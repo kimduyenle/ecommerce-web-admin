@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Container, Grid, makeStyles } from "@material-ui/core";
+import { useHistory, NavLink } from "react-router-dom";
+import { Container, Grid, makeStyles, Button } from "@material-ui/core";
 import Page from "components/Page";
 import compose from "components/hocs/compose";
 import withLayout from "components/hocs/withLayout";
@@ -10,7 +11,14 @@ import TotalCompletedOrders from "./TotalCompletedOrders";
 import userAPI from "api/user";
 import productAPI from "api/product";
 import orderAPI from "api/order";
+import "antd/dist/antd.css";
+import { DatePicker, Space } from "antd";
+import RevenueStatistics from "./RevenueStatistics";
+import { CloudDownload as Download } from "@material-ui/icons";
+import statisticsAPI from "api/statistics";
 
+const { RangePicker } = DatePicker;
+const url = "http://localhost:3000/statistics/export";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -18,64 +26,87 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3),
   },
+  button: {
+    // marginBottom: theme.spacing(3),
+    float: "right",
+    textTransform: "none",
+    backgroundColor: "#43a047",
+    color: "white",
+    padding: "4px 12px",
+    borderRadius: 4,
+    display: "flex",
+    alignItems: "center",
+    "& svg": {
+      marginRight: 8,
+    },
+    "&:hover": {
+      color: "white",
+      backgroundColor: "darkgray",
+    },
+  },
 }));
 
 const Dashboard = () => {
   const classes = useStyles();
-  const [users, setUsers] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [orders, setOrders] = useState([]);
+  const [statistics, setStatistics] = useState({});
+  const [rangeDate, setRangeDate] = useState([]);
 
-  const fetchUsers = async () => {
+  const fetchData = async () => {
     try {
-      const response = await userAPI.getAll();
-      setUsers(response.data.users);
+      const response = await statisticsAPI.getAll();
+      setStatistics(response.data);
     } catch (error) {
-      console.log("Failed to fetch users: ", error);
-    }
-  };
-  const fetchProducts = async () => {
-    try {
-      const response = await productAPI.getAll();
-      setProducts(response.data.products);
-    } catch (error) {
-      console.log("Failed to fetch products: ", error);
-    }
-  };
-  const fetchOrders = async () => {
-    try {
-      const response = await orderAPI.getAll();
-      setOrders(response.data.orders);
-    } catch (error) {
-      console.log("Failed to fetch orders: ", error);
+      console.log("Failed to fetch data: ", error);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
-    fetchProducts();
-    fetchOrders();
+    fetchData();
   }, []);
+
+  console.log({ rangeDate });
 
   return (
     <Page className={classes.root} title="Dashboard">
       <Container maxWidth={false}>
         <Grid container spacing={3}>
           <Grid item lg={6} sm={6} xl={3} xs={12}>
-            <Product totalProduct={products.length} />
+            <Product totalProduct={statistics.products} />
           </Grid>
           <Grid item lg={6} sm={6} xl={3} xs={12}>
-            <TotalUsers totalUsers={users.length} />
+            <TotalUsers totalUsers={statistics.users} />
           </Grid>
           <Grid item lg={6} sm={6} xl={3} xs={12}>
-            <TotalOrders totalOrders={orders.length} />
+            <TotalOrders totalOrders={statistics.orders} />
           </Grid>
           <Grid item lg={6} sm={6} xl={3} xs={12}>
             <TotalCompletedOrders
-              totalCompleledOrders={
-                orders.filter((order) => order.statusId === 4).length
-              }
+              totalCompleledOrders={statistics.completedOrders}
             />
+          </Grid>
+          <Grid item lg={6} sm={6} xl={3} xs={12}>
+            <RangePicker
+              onChange={(dates) => {
+                console.log({ dates });
+                const arrDate = dates.map((date) => {
+                  const dd = ("0" + date._d.getDate()).slice(-2);
+                  const mm = ("0" + (date._d.getMonth() + 1)).slice(-2);
+                  const yyyy = date._d.getFullYear();
+                  return `${yyyy}-${mm}-${dd}`;
+                });
+                // const arrDate = dates.map((date) => date._d.getTime());
+                setRangeDate(arrDate);
+              }}
+            />
+          </Grid>
+          <Grid item lg={6} sm={6} xl={3} xs={12}>
+            <a href={url} className={classes.button}>
+              <Download />
+              Xuất Excel
+            </a>
+          </Grid>
+          <Grid item xs={12}>
+            <RevenueStatistics rangeDate={rangeDate} />
           </Grid>
           {/* <Grid item lg={8} md={12} xl={9} xs={12}>
             <Sales />

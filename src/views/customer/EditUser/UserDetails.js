@@ -34,13 +34,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const UserDetails = ({ user, id }) => {
+const UserDetails = ({ user, id, fetchUser }) => {
   const classes = useStyles();
 
   const dispatch = useDispatch();
   const { showError, showSuccess } = useNotification();
   const history = useHistory();
-  console.log(user, id);
 
   return (
     // <Page className={classes.root} title="Add user">
@@ -74,8 +73,9 @@ const UserDetails = ({ user, id }) => {
             id
           );
           // onFileUpload();
-          showSuccess("Editted successfully.");
-          history.push(routes.users.path);
+          await fetchUser(id);
+          showSuccess("Lưu thành công");
+          // history.push("/users");
         } catch (error) {
           console.log("Failed to edit user: ", error);
         }

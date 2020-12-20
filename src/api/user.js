@@ -5,6 +5,10 @@ const userAPI = {
     const url = "/users";
     return apiClient.get(url);
   },
+  getPerPage: (options = {}) => {
+    const url = "/users/pagination";
+    return apiClient.get(url, options);
+  },
   getProfile: () => {
     const url = "/users/profile";
     return apiClient.get(url);
@@ -24,13 +28,14 @@ const userAPI = {
       address,
     });
   },
-  edit: ({ username, email, phoneNumber, address }, id) => {
+  edit: ({ username, email, phoneNumber, address, wallet }, id) => {
     const url = `/users/${id}`;
     return apiClient.put(url, {
       username,
       email,
       phoneNumber,
       address,
+      wallet,
     });
   },
   uploadAvatar: (image, id) => {

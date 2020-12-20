@@ -33,6 +33,7 @@ const Product = () => {
     description: "",
     owner: "",
     images: [],
+    status: "",
   });
   const { search } = useLocation();
   const { id } = qs.parse(search.replace(/^\?/, ""));
@@ -54,6 +55,7 @@ const Product = () => {
         description: fetchedProduct.description,
         owner: fetchedProduct.user.username,
         images: fetchedProduct.images,
+        status: fetchedProduct.status,
       });
     } catch (error) {
       console.log("Failed to fetch product: ", error);
@@ -81,12 +83,14 @@ const Product = () => {
             <ProductDetails product={{ ...product }} id={id} />
           </Grid>
           <Grid item lg={12} md={12} xs={12}>
-            <Button
-              variant="contained"
-              onClick={() => approveProduct(product.id)}
-            >
-              Duyệt sản phẩm
-            </Button>
+            {!product.status && (
+              <Button
+                variant="contained"
+                onClick={() => approveProduct(product.id)}
+              >
+                Duyệt sản phẩm
+              </Button>
+            )}
           </Grid>
           <Grid item xs={12}>
             <Reviews productId={id} />

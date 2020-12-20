@@ -166,7 +166,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected } = props;
+  const { numSelected, search, searchChange } = props;
 
   return (
     <Toolbar
@@ -194,6 +194,18 @@ const EnhancedTableToolbar = (props) => {
         </Typography>
       )}
 
+      {numSelected > 0 ? null : (
+        <TextField
+          label="Tìm kiếm"
+          margin="normal"
+          variant="outlined"
+          value={search}
+          size="small"
+          onChange={(event) => searchChange(event)}
+          style={{ width: "100%" }}
+        />
+      )}
+
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={props.handleClick}>
@@ -218,6 +230,7 @@ EnhancedTableToolbar.propTypes = {
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
+    paddingTop: theme.spacing(3),
   },
   paper: {
     width: "100%",
@@ -264,23 +277,30 @@ export default function Results() {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
+  const [count, setCount] = useState(0);
   const [search, setSearch] = React.useState("");
   const { showError, showSuccess } = useNotification();
+
+  const searchChange = (e) => {
+    setSearch(e.target.value);
+  };
 
   const [products, setProducts] = useState([]);
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [page, rowsPerPage, search]);
 
   const fetchProducts = async () => {
     try {
-      // const params = {
-      //   _page: 1,
-      //   _limit: 10,
-      // };
-      const response = await productAPI.getAll();
-      setProducts(response.data.products);
+      const params = {
+        page: page + 1,
+        limit: rowsPerPage,
+        search: search,
+      };
+      const response = await productAPI.getPerPage({ params: params });
+      setProducts(response.data.dataInPage);
+      setRowsPerPage(params.limit);
+      setCount(response.data.total);
     } catch (error) {
       console.log("Failed to fetch products: ", error);
     }
@@ -289,8 +309,8 @@ export default function Results() {
   const deleteProduct = async (id) => {
     try {
       const response = await productAPI.delete(id);
-      showSuccess("Deleted successfully.");
-      fetchProducts();
+      showSuccess("Đã xóa sản phẩm");
+      // fetchProducts();
     } catch (error) {
       console.log("Failed to delete product: ", error);
     }
@@ -321,11 +341,18 @@ export default function Results() {
     // setUsers(newUsers);
     for (let product of products) {
       for (let i of selected) {
-        if (i === product.name) {
+        if (i === product.id) {
           deleteProduct(product.id);
         }
       }
     }
+    const newProducts = products.filter((r) => {
+      for (let i of selected) {
+        if (i === r.id) return false;
+      }
+      return true;
+    });
+    setProducts(newProducts);
   };
 
   const handleClick = (event, name) => {
@@ -359,43 +386,14 @@ export default function Results() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, products.length - page * rowsPerPage);
-
   return (
     <div className={classes.root}>
-      <Box my={3}>
-        <Card>
-          <CardContent>
-            <Box maxWidth={500}>
-              <Autocomplete
-                freeSolo
-                id="free-solo-2-demo"
-                disableClearable
-                options={products.map((option) => option.name)}
-                autoSelect={true}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Tìm kiếm"
-                    margin="normal"
-                    variant="outlined"
-                    InputProps={{ ...params.InputProps, type: "search" }}
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                    size="small"
-                    // onClick={(event) => setSearch(event.target.value)}
-                  />
-                )}
-              />
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           handleClick={handleDeleteClick}
+          search={search}
+          searchChange={searchChange}
         />
         <TableContainer>
           <Table
@@ -414,17 +412,9 @@ export default function Results() {
               rowCount={products.length}
             />
             <TableBody>
-              {stableSort(
-                products.filter((r) => {
-                  console.log(r.name.indexOf(search));
-                  console.log(search);
-                  return r.name.indexOf(search) !== -1;
-                }),
-                getComparator(order, orderBy)
-              )
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.name);
+              {stableSort(products, getComparator(order, orderBy)).map(
+                (row, index) => {
+                  const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
@@ -440,7 +430,7 @@ export default function Results() {
                         <Checkbox
                           checked={isItemSelected}
                           inputProps={{ "aria-labelledby": labelId }}
-                          onClick={(event) => handleClick(event, row.name)}
+                          onClick={(event) => handleClick(event, row.id)}
                         />
                       </TableCell>
                       <TableCell
@@ -464,7 +454,7 @@ export default function Results() {
                         {row.name}
                       </TableCell>
                       <TableCell align="right">{row.quantity}</TableCell>
-                      <TableCell align="right">{row.price}</TableCell>
+                      <TableCell align="right">${row.price}</TableCell>
                       <TableCell align="right">
                         {!row.status ? (
                           <span className={classes.no}>Chưa duyệt</span>
@@ -486,11 +476,7 @@ export default function Results() {
                       </TableCell>
                     </TableRow>
                   );
-                })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
+                }
               )}
             </TableBody>
           </Table>
@@ -498,7 +484,7 @@ export default function Results() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={products.length}
+          count={count}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}

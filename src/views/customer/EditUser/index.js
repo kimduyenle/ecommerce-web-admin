@@ -31,33 +31,34 @@ const EditUser = () => {
   const { id } = qs.parse(search.replace(/^\?/, ""));
 
   useEffect(() => {
-    const fetchUser = async (id) => {
-      try {
-        const response = await userAPI.get(id);
-        const fetchedUser = response.data.user;
-        setUser({
-          username: fetchedUser.username,
-          email: fetchedUser.email,
-          phoneNumber: fetchedUser.phoneNumber,
-          address: fetchedUser.address,
-          avatar: fetchedUser.avatar,
-        });
-      } catch (error) {
-        console.log("Failed to fetch user: ", error);
-      }
-    };
     fetchUser(id);
   }, []);
+
+  const fetchUser = async (id) => {
+    try {
+      const response = await userAPI.get(id);
+      const fetchedUser = response.data.user;
+      setUser({
+        username: fetchedUser.username,
+        email: fetchedUser.email,
+        phoneNumber: fetchedUser.phoneNumber,
+        address: fetchedUser.address,
+        avatar: fetchedUser.avatar,
+      });
+    } catch (error) {
+      console.log("Failed to fetch user: ", error);
+    }
+  };
 
   return (
     <Page className={classes.root} title="Edit user">
       <Container maxWidth="lg">
         <Grid container spacing={3}>
           <Grid item lg={4} md={6} xs={12}>
-            <UserAvatar user={{ ...user }} id={id} />
+            <UserAvatar user={{ ...user }} id={id} fetchUser={fetchUser} />
           </Grid>
           <Grid item lg={8} md={6} xs={12}>
-            <UserDetails user={{ ...user }} id={id} />
+            <UserDetails user={{ ...user }} id={id} fetchUser={fetchUser} />
           </Grid>
         </Grid>
       </Container>

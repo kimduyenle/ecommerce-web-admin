@@ -1,21 +1,9 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
-import clsx from "clsx";
-import * as Yup from "yup";
 import { Formik, Form } from "formik";
 import useNotification from "utils/hooks/notification";
-import {
-  Avatar,
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Divider,
-  Typography,
-  makeStyles,
-} from "@material-ui/core";
+import { Avatar, Button, makeStyles } from "@material-ui/core";
 import { Upload as UploadIcon, Image as ImageIcon } from "react-feather";
 import routes from "app/app.routes";
 import userAPI from "api/user";
@@ -50,30 +38,22 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const UserAvatar = ({ className, user, id, ...rest }) => {
+const UserAvatar = ({ className, user, id, fetchUser, ...rest }) => {
   const { showError, showSuccess } = useNotification();
   const history = useHistory();
   const classes = useStyles();
   const [image, setImage] = useState({});
 
   const onFileUpload = async () => {
-    // e.preventDefault();
     console.log(image);
     try {
       if (image !== "") {
-        // Creating a FormData object
         let fileData = new FormData();
-        // Setting the 'image' field and the selected file
         fileData.set("image", image, `${image.lastModified}-${image.name}`);
-        // await axios({
-        //   method: "put",
-        //   url: "http://localhost:3000/users/5/avatar",
-        //   data: fileData,
-        //   headers: { "Content-Type": "multipart/form-data" },
-        // });
         await userAPI.uploadAvatar(fileData, id);
-        showSuccess("Editted successfully.");
-        history.push(routes.users.path);
+        await fetchUser(id);
+        showSuccess("Đã đổi hình đại diện");
+        // history.push(routes.users.path);
       }
       console.log(user);
     } catch (error) {
@@ -83,28 +63,10 @@ const UserAvatar = ({ className, user, id, ...rest }) => {
   };
 
   return (
-    <Formik
-      enableReinitialize={true}
-      initialValues={{}}
-      validationSchema={Yup.object().shape({
-        //   username: Yup.string()
-        //     .max(255)
-        //     .required("Username is required"),
-        //     email: Yup.string().email().required("Email is required"),
-        // password: Yup.string().max(255).required("Password is required"),
-      })}
-      onSubmit={onFileUpload}
-    >
+    <Formik initialValues={{}} onSubmit={onFileUpload}>
       {({ isSubmitting }) => (
         <Form>
           <Avatar className={classes.avatar} src={user.avatar} />
-          {/* <Typography color="textPrimary" gutterBottom variant="h3">
-                  {user.username}
-                </Typography>
-              </Box>
-            </CardContent>
-            <Divider />
-            <CardActions className={classes.cardActions}> */}
           <input
             name="image"
             className={classes.input}
@@ -139,8 +101,6 @@ const UserAvatar = ({ className, user, id, ...rest }) => {
               <UploadIcon />
             </Button>
           </div>
-          {/* </CardActions>
-          </Card> */}
         </Form>
       )}
     </Formik>

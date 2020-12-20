@@ -44,19 +44,19 @@ const EditCategory = () => {
   const { search } = useLocation();
   const { id } = qs.parse(search.replace(/^\?/, ""));
 
+  const fetchCategory = async (id) => {
+    try {
+      const response = await categoryAPI.get(id);
+      const fetchedCategory = response.data.category;
+      setCategory({
+        name: fetchedCategory.name,
+      });
+    } catch (error) {
+      console.log("Failed to fetch category: ", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchCategory = async (id) => {
-      try {
-        const response = await categoryAPI.get(id);
-        const fetchedCategory = response.data.category;
-        setCategory({
-          name: fetchedCategory.name,
-        });
-      } catch (error) {
-        console.log("Failed to fetch category: ", error);
-      }
-    };
-    console.log(id);
     fetchCategory(id);
   }, []);
 
@@ -77,11 +77,11 @@ const EditCategory = () => {
             validationSchema={Yup.object().shape({
               name: Yup.string().max(255).required("Name is required"),
             })}
-            onSubmit={async ({ name }, { setSubmitting }) => {
+            onSubmit={async ({ name }) => {
               try {
                 const response = await categoryAPI.edit({ name }, id);
-                showSuccess("Editted successfully.");
-                history.push(routes.categories.path);
+                showSuccess("Lưu thành công");
+                // history.push(routes.categories.path);
               } catch (error) {
                 console.log("Failed to edit category: ", error);
               }

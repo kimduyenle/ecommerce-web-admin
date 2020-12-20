@@ -71,7 +71,7 @@ const headCells = [
     id: "total",
     numeric: true,
     disablePadding: false,
-    label: "Tổng tiền hàng",
+    label: "Tổng thanh toán",
   },
   {
     id: "payment",
@@ -166,7 +166,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected } = props;
+  const { numSelected, search, searchChange } = props;
 
   return (
     <Toolbar
@@ -194,6 +194,18 @@ const EnhancedTableToolbar = (props) => {
         </Typography>
       )}
 
+      {numSelected > 0 ? null : (
+        <TextField
+          label="Tìm kiếm"
+          margin="normal"
+          variant="outlined"
+          value={search}
+          size="small"
+          onChange={(event) => searchChange(event)}
+          style={{ width: "100%" }}
+        />
+      )}
+
       {numSelected > 0 ? (
         <Tooltip title="Delete">
           <IconButton aria-label="delete" onClick={props.handleClick}>
@@ -218,6 +230,7 @@ EnhancedTableToolbar.propTypes = {
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
+    // paddingTop: theme.spacing(3),
   },
   paper: {
     width: "100%",
@@ -252,23 +265,30 @@ export default function Results() {
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
+  const [count, setCount] = useState(0);
   const [search, setSearch] = React.useState("");
   const { showError, showSuccess } = useNotification();
-
   const [orders, setOrders] = useState([]);
+
+  const searchChange = (e) => {
+    setSearch(e.target.value);
+  };
+
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [page, rowsPerPage, search]);
 
   const fetchOrders = async () => {
     try {
-      // const params = {
-      //   _page: 1,
-      //   _limit: 10,
-      // };
-      const response = await orderAPI.getAll();
-      setOrders(response.data.orders);
+      const params = {
+        page: page + 1,
+        limit: rowsPerPage,
+        search: search,
+      };
+      const response = await orderAPI.getPerPage({ params: params });
+      setOrders(response.data.result.dataInPage);
+      setRowsPerPage(params.limit);
+      setCount(response.data.result.total);
     } catch (error) {
       console.log("Failed to fetch orders: ", error);
     }
@@ -277,8 +297,7 @@ export default function Results() {
   const deleteOrder = async (id) => {
     try {
       const response = await orderAPI.delete(id);
-      showSuccess("Deleted successfully.");
-      fetchOrders();
+      showSuccess("Đã xóa đơn hàng");
     } catch (error) {
       console.log("Failed to delete order: ", error);
     }
@@ -309,11 +328,18 @@ export default function Results() {
     // setUsers(newUsers);
     for (let order of orders) {
       for (let i of selected) {
-        if (i === order.user.username) {
+        if (i === order.id) {
           deleteOrder(order.id);
         }
       }
     }
+    const newOrders = orders.filter((r) => {
+      for (let i of selected) {
+        if (i === r.id) return false;
+      }
+      return true;
+    });
+    setOrders(newOrders);
   };
 
   const handleClick = (event, name) => {
@@ -347,43 +373,14 @@ export default function Results() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, orders.length - page * rowsPerPage);
-
   return (
     <div className={classes.root}>
-      <Box mb={3}>
-        <Card>
-          <CardContent>
-            <Box maxWidth={500}>
-              <Autocomplete
-                freeSolo
-                id="free-solo-2-demo"
-                disableClearable
-                options={orders.map((option) => option.user.username)}
-                autoSelect={true}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Tìm kiếm"
-                    margin="normal"
-                    variant="outlined"
-                    InputProps={{ ...params.InputProps, type: "search" }}
-                    value={search}
-                    size="small"
-                    onChange={(event) => setSearch(event.target.value)}
-                    // onClick={(event) => setSearch(event.target.value)}
-                  />
-                )}
-              />
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
       <Paper className={classes.paper}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           handleClick={handleDeleteClick}
+          search={search}
+          searchChange={searchChange}
         />
         <TableContainer>
           <Table
@@ -402,17 +399,9 @@ export default function Results() {
               rowCount={orders.length}
             />
             <TableBody>
-              {stableSort(
-                orders.filter((r) => {
-                  console.log(r.user.username.indexOf(search));
-                  console.log(search);
-                  return r.user.username.indexOf(search) !== -1;
-                }),
-                getComparator(order, orderBy)
-              )
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.user.username);
+              {stableSort(orders, getComparator(order, orderBy)).map(
+                (row, index) => {
+                  const isItemSelected = isSelected(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
@@ -428,9 +417,7 @@ export default function Results() {
                         <Checkbox
                           checked={isItemSelected}
                           inputProps={{ "aria-labelledby": labelId }}
-                          onClick={(event) =>
-                            handleClick(event, row.user.username)
-                          }
+                          onClick={(event) => handleClick(event, row.id)}
                         />
                       </TableCell>
                       <TableCell
@@ -454,7 +441,7 @@ export default function Results() {
                         {row.user.username}
                       </TableCell>
                       <TableCell align="right">
-                        {calTotal(row.orderDetails)}
+                        ${calTotal(row.orderDetails) + row.transportation.cost}
                       </TableCell>
                       <TableCell align="right">{row.paymentMethod}</TableCell>
                       <TableCell align="right">{row.status.name}</TableCell>
@@ -463,11 +450,7 @@ export default function Results() {
                       </TableCell>
                     </TableRow>
                   );
-                })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
+                }
               )}
             </TableBody>
           </Table>
@@ -475,7 +458,7 @@ export default function Results() {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={orders.length}
+          count={count}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}

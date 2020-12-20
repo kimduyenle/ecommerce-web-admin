@@ -20,6 +20,10 @@ import Products from "./Products";
 import Invoice from "./Invoice";
 import orderAPI from "api/order";
 import useNotification from "utils/hooks/notification";
+import transactionAPI from "api/transaction";
+import calTotal from "utils/calTotal";
+import payoutAPI from "api/payout";
+import orderHistoryAPI from "api/orderHistory";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -71,6 +75,10 @@ const useStyles = makeStyles((theme) => ({
   tab: {
     textTransform: "capitalize",
   },
+  "action-btn": {
+    textTransform: "none !important",
+    marginRight: "20px !important",
+  },
 }));
 
 function OrderDetail() {
@@ -90,44 +98,74 @@ function OrderDetail() {
     paymentMethod: "",
     deliveryPhoneNumber: "",
     deliveryAddress: "",
+    district: "",
+    province: "",
     createdAt: "",
     orderDetails: [],
+    transportation: {},
+    orderHistories: [],
   });
 
   const { search } = useLocation();
   const { id } = qs.parse(search.replace(/^\?/, ""));
 
-  useEffect(() => {
-    const fetchOrder = async (id) => {
-      try {
-        const response = await orderAPI.get(id);
-        const fetchedOrder = response.data.order;
-        setOrder({
-          id: fetchedOrder.id,
-          user: fetchedOrder.user,
-          statusId: fetchedOrder.statusId,
-          paymentMethod: fetchedOrder.paymentMethod,
-          deliveryPhoneNumber: fetchedOrder.deliveryPhoneNumber,
-          deliveryAddress: fetchedOrder.deliveryAddress,
-          createdAt: fetchedOrder.createdAt,
-          orderDetails: fetchedOrder.orderDetails,
-        });
-      } catch (error) {
-        console.log("Failed to fetch order: ", error);
-      }
-    };
-    fetchOrder(id);
-  }, [id]);
+  const fetchOrder = async (id) => {
+    try {
+      const response = await orderAPI.get(id);
+      const fetchedOrder = response.data.order;
+      setOrder({
+        id: fetchedOrder.id,
+        user: fetchedOrder.user,
+        statusId: fetchedOrder.statusId,
+        paymentMethod: fetchedOrder.paymentMethod,
+        deliveryPhoneNumber: fetchedOrder.deliveryPhoneNumber,
+        deliveryAddress: fetchedOrder.deliveryAddress,
+        district: fetchedOrder.district,
+        province: fetchedOrder.province,
+        createdAt: fetchedOrder.createdAt,
+        orderDetails: fetchedOrder.orderDetails,
+        transportation: fetchedOrder.transportation,
+        orderHistories: fetchedOrder.orderHistories,
+      });
+    } catch (error) {
+      console.log("Failed to fetch order: ", error);
+    }
+  };
 
   const updateOrderStatus = async (statusId, orderId) => {
     try {
       await orderAPI.editStatus({ statusId: statusId + 1 }, orderId);
-      history.push("/orders");
-      showSuccess("Cập nhật đơn hàng thành công");
+      // history.push("/orders");
+      fetchOrder(id);
+      showSuccess("Đã cập nhật");
     } catch (error) {
       console.log("Failed to update status: ", error);
     }
   };
+
+  const createOrderHistory = async (history) => {
+    try {
+      await orderHistoryAPI.add(history);
+      fetchOrder(id);
+    } catch (error) {
+      console.log("Failed to create order history: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrder(id);
+  }, [id]);
+
+  const createTransaction = async (transaction) => {
+    try {
+      await transactionAPI.add(transaction);
+      await payoutAPI.payout({ amount: transaction.amount });
+    } catch (error) {
+      console.log("Failed to create transaction: ", error);
+    }
+  };
+
+  console.log(1);
 
   return (
     <Page className={classes.root} title="Orders">
@@ -162,15 +200,112 @@ function OrderDetail() {
           <Invoice order={{ ...order }} />
         </TabPanel>
         <Box mt={2}>
-          {(order.statusId === 2 || order.statusId === 3) && (
+          {order.statusId === 2 && (
             <Button
               variant="contained"
-              onClick={() => updateOrderStatus(order.statusId, order.id)}
+              onClick={() => {
+                updateOrderStatus(order.statusId, order.id);
+                createOrderHistory({
+                  orderId: order.id,
+                  name: "Đã lấy hàng",
+                });
+              }}
+              className={classes["action-btn"]}
             >
-              {order.statusId === 2 && "Xác nhận đã lấy hàng"}
-              {order.statusId === 3 && "Xác nhận đã giao"}
+              Xác nhận đã lấy hàng
             </Button>
           )}
+          {order.statusId === 3 &&
+            order.orderDetails[0].product.user.province !==
+              order.user.province && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    createOrderHistory({
+                      orderId: order.id,
+                      name: `Đã rời kho ${order.orderDetails[0].product.user.province}`,
+                    });
+                    showSuccess("Đã cập nhật");
+                  }}
+                  className={classes["action-btn"]}
+                >
+                  Đã rời kho {order.orderDetails[0].product.user.province}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    createOrderHistory({
+                      orderId: order.id,
+                      name: `Đã đến kho ${order.user.province}`,
+                    });
+                    showSuccess("Đã cập nhật");
+                  }}
+                  className={classes["action-btn"]}
+                >
+                  Đã đến kho {order.user.province}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    if (order.paymentMethod === "Paypal") {
+                      createTransaction({
+                        userId: order.orderDetails[0].product.userId,
+                        orderId: order.id,
+                        amount: calTotal(order.orderDetails),
+                      });
+                    }
+                    updateOrderStatus(order.statusId, order.id);
+                    createOrderHistory({
+                      orderId: order.id,
+                      name: "Đã giao hàng",
+                    });
+                  }}
+                  className={classes["action-btn"]}
+                >
+                  Xác nhận đã giao
+                </Button>
+              </>
+            )}
+          {order.statusId === 3 &&
+            order.orderDetails[0].product.user.province ===
+              order.user.province && (
+              <>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    createOrderHistory({
+                      orderId: order.id,
+                      name: `Đang giao trong nội thành ${order.user.province}`,
+                    });
+                    showSuccess("Đã cập nhật");
+                  }}
+                  className={classes["action-btn"]}
+                >
+                  Đang giao trong nội thành
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    if (order.paymentMethod === "Paypal") {
+                      createTransaction({
+                        userId: order.orderDetails[0].product.userId,
+                        orderId: order.id,
+                        amount: calTotal(order.orderDetails),
+                      });
+                    }
+                    updateOrderStatus(order.statusId, order.id);
+                    createOrderHistory({
+                      orderId: order.id,
+                      name: "Đã giao hàng",
+                    });
+                  }}
+                  className={classes["action-btn"]}
+                >
+                  Xác nhận đã giao
+                </Button>
+              </>
+            )}
         </Box>
       </Container>
     </Page>

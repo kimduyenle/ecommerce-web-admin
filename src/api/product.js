@@ -5,6 +5,10 @@ const productAPI = {
     const url = "/products";
     return apiClient.get(url);
   },
+  getPerPage: (options = {}) => {
+    const url = "/products/pagination";
+    return apiClient.get(url, options);
+  },
   get: (id) => {
     const url = `/products/${id}`;
     return apiClient.get(url);

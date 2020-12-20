@@ -53,8 +53,8 @@ const Products = ({ className, orderDetails, ...rest }) => {
                   )}
                 </TableCell>
                 <TableCell>{detail.product.name}</TableCell>
-                <TableCell>{detail.product.price}</TableCell>
-                <TableCell>{detail.product.quantity}</TableCell>
+                <TableCell>${detail.price}</TableCell>
+                <TableCell>{detail.quantity}</TableCell>
               </TableRow>
             ))}
           </TableBody>

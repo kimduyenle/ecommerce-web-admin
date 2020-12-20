@@ -1,19 +1,23 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 const reviewAPI = {
   getAll: () => {
-    const url = '/reviews';
+    const url = "/reviews";
     return apiClient.get(url);
   },
-  getByProduct: productId => {
+  getPerPage: (options = {}) => {
+    const url = "/reviews/pagination";
+    return apiClient.get(url, options);
+  },
+  getByProduct: (productId) => {
     const url = `/reviews/product/${productId}`;
     return apiClient.get(url);
   },
-  get: id => {
+  get: (id) => {
     const url = `/reviews/${id}`;
     return apiClient.get(url);
   },
-  add: ({productId, content, star}) => {
+  add: ({ productId, content, star }) => {
     const url = `/reviews`;
     return apiClient.post(url, {
       productId,
@@ -21,10 +25,10 @@ const reviewAPI = {
       star,
     });
   },
-  delete: id => {
+  delete: (id) => {
     const url = `/reviews/delete/${id}`;
     return apiClient.put(url);
-  }
+  },
 };
 
 export default reviewAPI;

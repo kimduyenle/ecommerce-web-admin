@@ -1,30 +1,34 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 const categoryAPI = {
   getAll: () => {
-    const url = '/categories';
+    const url = "/categories";
     return apiClient.get(url);
   },
-  get: id => {
+  getPerPage: (options = {}) => {
+    const url = "/categories/pagination";
+    return apiClient.get(url, options);
+  },
+  get: (id) => {
     const url = `/categories/${id}`;
     return apiClient.get(url);
   },
-  add: ({name}) => {
+  add: ({ name }) => {
     const url = `/categories`;
     return apiClient.post(url, {
-      name
+      name,
     });
   },
-  edit: ({name}, id) => {
+  edit: ({ name }, id) => {
     const url = `/categories/${id}`;
     return apiClient.put(url, {
-      name
+      name,
     });
   },
-  delete: id => {
+  delete: (id) => {
     const url = `/categories/delete/${id}`;
     return apiClient.put(url);
-  }
+  },
 };
 
 export default categoryAPI;

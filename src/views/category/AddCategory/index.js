@@ -57,7 +57,7 @@ const AddCategory = () => {
             onSubmit={async ({ name }) => {
               try {
                 const response = await categoryAPI.add({ name });
-                showSuccess("Added successfully.");
+                showSuccess("Thêm danh mục thành công");
                 history.push(routes.categories.path);
               } catch (error) {
                 console.log("Failed to add category: ", error);
