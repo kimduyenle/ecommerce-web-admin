@@ -74,6 +74,7 @@ const RevenueStatistics = ({ rangeDate }) => {
         page: page + 1,
         limit: rowsPerPage,
         status: 4,
+        status2: 10,
         startDate: rangeDate[0],
         endDate: rangeDate[1],
         // type: typeValue,

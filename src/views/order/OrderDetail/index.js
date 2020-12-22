@@ -134,7 +134,7 @@ function OrderDetail() {
 
   const updateOrderStatus = async (statusId, orderId) => {
     try {
-      await orderAPI.editStatus({ statusId: statusId + 1 }, orderId);
+      await orderAPI.editStatus({ statusId: statusId }, orderId);
       // history.push("/orders");
       fetchOrder(id);
       showSuccess("Đã cập nhật");
@@ -156,10 +156,20 @@ function OrderDetail() {
     fetchOrder(id);
   }, [id]);
 
+  // const createTransaction = async (transaction) => {
+  //   try {
+  //     await transactionAPI.add(transaction);
+  //     await payoutAPI.payout({ amount: transaction.amount });
+  //   } catch (error) {
+  //     console.log("Failed to create transaction: ", error);
+  //   }
+  // };
   const createTransaction = async (transaction) => {
     try {
+      // const response = await payoutAPI.payout({ amount: transaction.amount });
+      // console.log({ response });
+      // transaction.payoutId = response.data;
       await transactionAPI.add(transaction);
-      await payoutAPI.payout({ amount: transaction.amount });
     } catch (error) {
       console.log("Failed to create transaction: ", error);
     }
@@ -204,7 +214,7 @@ function OrderDetail() {
             <Button
               variant="contained"
               onClick={() => {
-                updateOrderStatus(order.statusId, order.id);
+                updateOrderStatus(3, order.id);
                 createOrderHistory({
                   orderId: order.id,
                   name: "Đã lấy hàng",
@@ -247,15 +257,20 @@ function OrderDetail() {
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={() => {
+                  onClick={async () => {
                     if (order.paymentMethod === "Paypal") {
+                      const response = await payoutAPI.payout({
+                        amount: calTotal(order.orderDetails),
+                      });
                       createTransaction({
                         userId: order.orderDetails[0].product.userId,
                         orderId: order.id,
+                        payoutId: response.data,
                         amount: calTotal(order.orderDetails),
+                        status: "Đang xử lý",
                       });
                     }
-                    updateOrderStatus(order.statusId, order.id);
+                    updateOrderStatus(4, order.id);
                     createOrderHistory({
                       orderId: order.id,
                       name: "Đã giao hàng",
@@ -286,15 +301,20 @@ function OrderDetail() {
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={() => {
+                  onClick={async () => {
                     if (order.paymentMethod === "Paypal") {
+                      const response = await payoutAPI.payout({
+                        amount: calTotal(order.orderDetails),
+                      });
                       createTransaction({
                         userId: order.orderDetails[0].product.userId,
                         orderId: order.id,
+                        payoutId: response.data,
                         amount: calTotal(order.orderDetails),
+                        status: "Đang xử lý",
                       });
                     }
-                    updateOrderStatus(order.statusId, order.id);
+                    updateOrderStatus(4, order.id);
                     createOrderHistory({
                       orderId: order.id,
                       name: "Đã giao hàng",
@@ -306,6 +326,69 @@ function OrderDetail() {
                 </Button>
               </>
             )}
+          {order.statusId === 11 && (
+            <>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  updateOrderStatus(10, order.id);
+                  createOrderHistory({
+                    orderId: order.id,
+                    name: "Từ chối trả hàng",
+                  });
+                }}
+                className={classes["action-btn"]}
+              >
+                Từ chối trả hàng
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  updateOrderStatus(9, order.id);
+                  createOrderHistory({
+                    orderId: order.id,
+                    name: "Đang trả hàng",
+                  });
+                }}
+                className={classes["action-btn"]}
+              >
+                Đồng ý trả hàng
+              </Button>
+            </>
+          )}
+          {order.statusId === 9 && (
+            <>
+              <Button
+                variant="contained"
+                onClick={async () => {
+                  if (order.paymentMethod === "Paypal") {
+                    const response = await payoutAPI.payout({
+                      amount:
+                        calTotal(order.orderDetails) +
+                        order.transportation.cost,
+                    });
+                    createTransaction({
+                      userId: order.userId,
+                      orderId: order.id,
+                      payoutId: response.data,
+                      amount:
+                        calTotal(order.orderDetails) +
+                        order.transportation.cost,
+                      status: "Đang xử lý",
+                    });
+                  }
+                  updateOrderStatus(8, order.id);
+                  createOrderHistory({
+                    orderId: order.id,
+                    name: "Trả hàng thành công",
+                  });
+                }}
+                className={classes["action-btn"]}
+              >
+                Đã trả hàng
+              </Button>
+            </>
+          )}
         </Box>
       </Container>
     </Page>

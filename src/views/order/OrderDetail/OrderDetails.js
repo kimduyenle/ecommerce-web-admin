@@ -112,6 +112,14 @@ const OrderDetails = ({ className, order, ...rest }) => {
           </Table>
         </TableContainer>
       </Box>
+      {order.statusId === 8 && (
+        <Box mt={3}>
+          <Typography variant="h3" className={classes.title}>
+            Lý do trả hàng:{" "}
+            {order.orderHistories.filter((i) => i.note !== null)[0].note}
+          </Typography>
+        </Box>
+      )}
       <Box mt={3}>
         <Typography variant="h3" className={classes.title}>
           Lịch sử

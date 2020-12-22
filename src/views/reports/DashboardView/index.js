@@ -18,7 +18,7 @@ import { CloudDownload as Download } from "@material-ui/icons";
 import statisticsAPI from "api/statistics";
 
 const { RangePicker } = DatePicker;
-const url = "http://localhost:3000/statistics/export";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -100,7 +100,10 @@ const Dashboard = () => {
             />
           </Grid>
           <Grid item lg={6} sm={6} xl={3} xs={12}>
-            <a href={url} className={classes.button}>
+            <a
+              href={`http://localhost:3000/statistics/export?startDate=${rangeDate[0]}&endDate=${rangeDate[1]}`}
+              className={classes.button}
+            >
               <Download />
               Xuất Excel
             </a>
