@@ -66,7 +66,7 @@ const Product = () => {
     try {
       const response = await productAPI.editStatus({ status: true }, id);
       showSuccess("Đã duyệt sản phẩm");
-      history.push("/products");
+      // history.push("/products");
     } catch (error) {
       console.log("Failed to fetch product: ", error);
     }
